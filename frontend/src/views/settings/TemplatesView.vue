@@ -963,11 +963,12 @@ function formatPreview(text: string, samples: any[]): string {
               <!-- URL specific fields -->
               <div v-if="button.type === 'URL'" class="space-y-1">
                 <Label class="text-xs">{{ $t('templates.buttonUrl') }}</Label>
-                <Input v-model="button.url" placeholder="https://example.com/{{path}}" class="h-9" />
+                <Input v-model="button.url" placeholder="https://example.com/{{1}}" class="h-9" />
                 <p class="text-xs text-muted-foreground">{{ $t('templates.buttonUrlHint') }}</p>
                 <div v-if="button.url && button.url.includes('{{')">
                   <Label class="text-xs">{{ $t('templates.buttonUrlExample') }}</Label>
-                  <Input v-model="button.example" placeholder="https://example.com/my-page" class="h-9" />
+                  <Input v-model="button.example" :placeholder="$t('templates.buttonUrlExamplePlaceholder')" class="h-9" />
+                  <p class="text-xs text-muted-foreground">{{ $t('templates.buttonUrlExampleHint') }}</p>
                 </div>
               </div>
 
