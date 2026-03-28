@@ -74,9 +74,9 @@ import {
 import { Line, Bar, Pie } from '@/lib/charts'
 import type { DateRange } from 'reka-ui'
 import { CalendarDate } from '@internationalized/date'
-import { useToast } from '@/components/ui/toast'
+import { useAppToast } from '@/composables/useAppToast'
 
-const { toast } = useToast()
+const { success, error: showError } = useAppToast()
 const { t } = useI18n()
 const authStore = useAuthStore()
 
@@ -542,11 +542,7 @@ const persistLayout = async () => {
   try {
     await widgetsService.saveLayout(layoutItems)
   } catch (error: any) {
-    toast({
-      title: t('common.error'),
-      description: error.response?.data?.message || t('dashboard.saveLayoutFailed'),
-      variant: 'destructive'
-    })
+    showError(t('common.error'), error.response?.data?.message || t('dashboard.saveLayoutFailed'))
   }
 }
 
@@ -700,20 +696,12 @@ const saveWidget = async () => {
   const isShortcuts = widgetForm.value.display_type === 'shortcuts'
 
   if (!widgetForm.value.name) {
-    toast({
-      title: t('dashboard.validationError'),
-      description: t('dashboard.nameRequired'),
-      variant: 'destructive'
-    })
+    showError(t('dashboard.validationError'), t('dashboard.nameRequired'))
     return
   }
 
   if (!isShortcuts && !widgetForm.value.data_source) {
-    toast({
-      title: t('dashboard.validationError'),
-      description: t('dashboard.dataSourceRequired'),
-      variant: 'destructive'
-    })
+    showError(t('dashboard.validationError'), t('dashboard.dataSourceRequired'))
     return
   }
 
@@ -747,20 +735,16 @@ const saveWidget = async () => {
   try {
     if (isEditMode.value && editingWidgetId.value) {
       await widgetsService.update(editingWidgetId.value, payload)
-      toast({ title: t('common.updatedSuccess', { resource: t('resources.Widget') }) })
+      success(t('common.updatedSuccess', { resource: t('resources.Widget') }))
     } else {
       await widgetsService.create(payload)
-      toast({ title: t('common.createdSuccess', { resource: t('resources.Widget') }) })
+      success(t('common.createdSuccess', { resource: t('resources.Widget') }))
     }
     isWidgetDialogOpen.value = false
     await fetchWidgets()
     await fetchWidgetData()
   } catch (error: any) {
-    toast({
-      title: t('common.error'),
-      description: error.response?.data?.message || t('common.failedSave', { resource: t('resources.widget') }),
-      variant: 'destructive'
-    })
+    showError(t('common.error'), error.response?.data?.message || t('common.failedSave', { resource: t('resources.widget') }))
   } finally {
     isSavingWidget.value = false
   }
@@ -776,17 +760,13 @@ const confirmDeleteWidget = async () => {
 
   try {
     await widgetsService.delete(widgetToDelete.value.id)
-    toast({ title: t('common.deletedSuccess', { resource: t('resources.Widget') }) })
+    success(t('common.deletedSuccess', { resource: t('resources.Widget') }))
     deleteDialogOpen.value = false
     widgetToDelete.value = null
     await fetchWidgets()
     await fetchWidgetData()
   } catch (error: any) {
-    toast({
-      title: t('common.error'),
-      description: error.response?.data?.message || t('common.failedDelete', { resource: t('resources.widget') }),
-      variant: 'destructive'
-    })
+    showError(t('common.error'), error.response?.data?.message || t('common.failedDelete', { resource: t('resources.widget') }))
   }
 }
 
