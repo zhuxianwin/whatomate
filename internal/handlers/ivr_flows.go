@@ -13,6 +13,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/shridarpatil/whatomate/internal/audit"
 	"github.com/shridarpatil/whatomate/internal/models"
+	"gorm.io/gorm"
 	"github.com/valyala/fasthttp"
 	"github.com/zerodha/fastglue"
 )
@@ -274,7 +275,7 @@ func (a *App) UpdateIVRFlow(r *fastglue.Request) error {
 	// Compare IVR menu nodes for audit
 	var extraChanges []map[string]any
 	if req.Menu != nil {
-		extraChanges = diffIVRMenuNodes(oldFlow.Menu, req.Menu)
+		extraChanges = diffIVRMenuNodes(a.DB, oldFlow.Menu, req.Menu)
 	}
 
 	audit.LogAudit(a.DB, orgID, userID, audit.GetUserName(a.DB, userID),
@@ -284,7 +285,7 @@ func (a *App) UpdateIVRFlow(r *fastglue.Request) error {
 }
 
 // diffIVRMenuNodes compares old and new IVR menu JSONB to find node-level changes
-func diffIVRMenuNodes(oldMenu, newMenu models.JSONB) []map[string]any {
+func diffIVRMenuNodes(db *gorm.DB, oldMenu, newMenu models.JSONB) []map[string]any {
 	var changes []map[string]any
 
 	type ivrNode struct {
@@ -389,14 +390,33 @@ func diffIVRMenuNodes(oldMenu, newMenu models.JSONB) []map[string]any {
 					}
 				}
 			} else {
+				displayOld := oldVal
+				displayNew := newVal
+				// Resolve team_id UUIDs to team names
+				if key == "team_id" {
+					displayOld = resolveTeamName(db, fmt.Sprintf("%v", oldVal))
+					displayNew = resolveTeamName(db, fmt.Sprintf("%v", newVal))
+				}
 				changes = append(changes, map[string]any{
-					"field": label + " → " + key, "old_value": oldVal, "new_value": newVal,
+					"field": label + " → " + key, "old_value": displayOld, "new_value": displayNew,
 				})
 			}
 		}
 	}
 
 	return changes
+}
+
+func resolveTeamName(db *gorm.DB, teamID string) string {
+	if teamID == "" || teamID == "<nil>" {
+		return "—"
+	}
+	var name string
+	db.Model(&models.Team{}).Where("id = ?", teamID).Pluck("name", &name)
+	if name == "" {
+		return teamID
+	}
+	return name
 }
 
 // extractLabel returns a readable string from a value — if it's a map with a "label" key, return that
