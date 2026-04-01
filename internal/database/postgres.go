@@ -479,24 +479,24 @@ func FixSystemRolePermissions(db *gorm.DB) error {
 	}
 
 	for _, role := range systemRoles {
-		// Check if role has permissions
-		var permCount int64
-		db.Table("role_permissions").Where("custom_role_id = ?", role.ID).Count(&permCount)
-
-		if permCount > 0 {
-			continue // Already has permissions, don't overwrite customizations
-		}
-
 		// Get the permission keys for this role
 		permKeys, ok := rolePermissions[role.Name]
 		if !ok {
 			continue // Unknown role name
 		}
 
-		// Link permissions to role
+		// Get existing permissions for this role
+		var existingPermIDs []uuid.UUID
+		db.Table("role_permissions").Where("custom_role_id = ?", role.ID).Pluck("permission_id", &existingPermIDs)
+		existingSet := make(map[uuid.UUID]bool)
+		for _, id := range existingPermIDs {
+			existingSet[id] = true
+		}
+
+		// Add only missing permissions
 		var permsToAdd []models.Permission
 		for _, key := range permKeys {
-			if perm, ok := permMap[key]; ok {
+			if perm, ok := permMap[key]; ok && !existingSet[perm.ID] {
 				permsToAdd = append(permsToAdd, perm)
 			}
 		}
