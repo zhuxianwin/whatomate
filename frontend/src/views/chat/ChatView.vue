@@ -1170,10 +1170,13 @@ function getCTAUrlData(message: Message): CTAUrlData | null {
 }
 
 function getFlowButtonText(message: Message): string | null {
-  if (message.message_type !== 'flow' || !message.interactive_data) {
+  if (message.message_type !== 'flow') {
     return null
   }
-  return (message.interactive_data as any).button_text || null
+  if (!message.interactive_data) {
+    return null
+  }
+  return (message.interactive_data as any).button_text || 'Open'
 }
 
 function isMediaMessage(message: Message): boolean {

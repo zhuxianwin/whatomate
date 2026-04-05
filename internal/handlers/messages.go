@@ -461,6 +461,7 @@ func (a *App) broadcastNewMessage(orgID uuid.UUID, msg *models.Message, contact 
 		"media_url":        msg.MediaURL,
 		"media_mime_type":  msg.MediaMimeType,
 		"media_filename":   msg.MediaFilename,
+		"interactive_data": msg.InteractiveData,
 		"status":           msg.Status,
 		"wamid":            msg.WhatsAppMessageID,
 		"created_at":       msg.CreatedAt,
