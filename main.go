@@ -20,8 +20,11 @@ var rootCmd = &cobra.Command{
 	Short: "whatomate - WhatsApp automation tool",
 	Long: `whatomate is a CLI tool for automating WhatsApp messages.
 It allows you to send messages, manage contacts, and automate
-common WhatsApp workflows from the command line.`,
-	SilenceUsage: true,
+common WhatsApp workflows from the command line.
+
+Docs: https://github.com/shridarpatil/whatomate`,
+	SilenceUsage:  true,
+	SilenceErrors: true,
 }
 
 // versionCmd prints the current version information
@@ -39,7 +42,7 @@ func init() {
 
 func main() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		fmt.Fprintln(os.Stderr, "error:", err)
 		os.Exit(1)
 	}
 }
