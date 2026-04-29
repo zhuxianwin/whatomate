@@ -22,7 +22,8 @@ var rootCmd = &cobra.Command{
 It allows you to send messages, manage contacts, and automate
 common WhatsApp workflows from the command line.
 
-Docs: https://github.com/shridarpatil/whatomate`,
+Docs: https://github.com/shridarpatil/whatomate
+Fork: https://github.com/me/whatomate`,
 	SilenceUsage:  true,
 	SilenceErrors: true,
 }
@@ -42,6 +43,7 @@ func init() {
 
 func main() {
 	if err := rootCmd.Execute(); err != nil {
+		// print the error and exit with a non-zero status code
 		fmt.Fprintln(os.Stderr, "error:", err)
 		os.Exit(1)
 	}
