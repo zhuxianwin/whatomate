@@ -39,6 +39,8 @@ var versionCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(versionCmd)
+	// CompletionCommand is added by cobra by default; hide it to keep help output clean
+	rootCmd.CompletionOptions.HiddenDefaultCmd = true
 }
 
 func main() {
