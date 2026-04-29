@@ -44,7 +44,7 @@ func init() {
 func main() {
 	if err := rootCmd.Execute(); err != nil {
 		// print the error and exit with a non-zero status code
-		fmt.Fprintln(os.Stderr, "error:", err)
+		fmt.Fprintln(os.Stderr, "Error:", err)
 		os.Exit(1)
 	}
 }
